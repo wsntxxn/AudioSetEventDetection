@@ -45,3 +45,8 @@ python inference.py \
     --experiment_path experiments/clip_frame_loss/cnn8_rnn \
     --output prediction.csv
 ```
+
+## Usage on Hugging Face
+
+The pre-trained Cnn8Rnn is available on [Hugging Face](https://huggingface.co/wsntxxn/cnn8rnn-audioset-sed) for easy usage.
+Feel free to use it.
