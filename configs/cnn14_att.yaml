@@ -1,0 +1,69 @@
+experiment_path: experiments/cnn14_att_resume
+
+loss:
+    type: FrameBce
+    args: {}
+
+mixup: True
+
+specaug: True
+
+data:
+    train:
+        type: AudioSetStrongDataset
+        args:
+            waveform: data/train/waveform.csv
+            weak_label: /mnt/lustre/sjtu/home/xnx98/work/AudioTagging/audioset_tagging/data/audioset/full_train/label.csv
+            weak_label_encoder: /mnt/lustre/sjtu/home/xnx98/work/AudioTagging/audioset_tagging/data/audioset/balanced_train/label_encoder.pkl
+            strong_label: data/train/label_train.csv
+            strong_label_encoder: data/train/label_encoder.pkl
+            time_resolution: 0.01
+        batch_sampler:
+            type: BalancedTrainSampler
+            args:
+                batch_size: 32
+        collate_fn: collate_fn
+    val:
+        type: AudioSetStrongDataset
+        args:
+            waveform: /mnt/lustre/sjtu/home/xnx98/work/AudioTagging/audioset_tagging/data/audioset/full_train/waveform.csv
+            weak_label: /mnt/lustre/sjtu/home/xnx98/work/AudioTagging/audioset_tagging/data/audioset/full_train/label.csv
+            weak_label_encoder: /mnt/lustre/sjtu/home/xnx98/work/AudioTagging/audioset_tagging/data/audioset/balanced_train/label_encoder.pkl
+            strong_label: data/train/label_val.csv
+            strong_label_encoder: data/train/label_encoder.pkl
+            time_resolution: 0.01
+        batch_sampler:
+            type: EvaluateSampler
+            args:
+                batch_size: 32
+        collate_fn: collate_fn
+    dataloader_args:
+        num_workers: 8
+
+model:
+    type: Cnn14_DecisionLevelAtt
+    args:
+        classes_num: 447
+
+resume_config:
+    checkpoint: experiments/cnn14_att/checkpoints/best.pth
+    finetune: False
+    statistics: experiments/cnn14_att/statistics.pkl
+
+optimizer:
+    type: Adam
+    args:
+        lr: !!float 1e-3
+        betas: !!python/tuple [0.9, 0.999]
+        weight_decay: 0.0
+        amsgrad: True
+
+iterations: 600000
+
+eval_interval: 2000
+
+save_interval: 100000
+
+print_interval: 100
+
+early_stop: 10

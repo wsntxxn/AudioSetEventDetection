@@ -1,0 +1,75 @@
+experiment_path: experiments/clip_frame_loss/cnn14_att_finetune_from_weak
+
+loss:
+    type: ClipFrameBceLoss
+    args:
+        alpha: 0.5
+
+mixup: True
+
+specaug: True
+
+data:
+    train:
+        type: AudioSetStrongDataset
+        args:
+            waveform: data/train/waveform.csv
+            weak_label: data/train/label_train_weak.csv
+            weak_label_encoder: data/train/label_encoder.pkl
+            strong_label: data/train/label_train.csv
+            strong_label_encoder: data/train/label_encoder.pkl
+            time_resolution: 0.01
+        batch_sampler:
+            type: BalancedTrainSampler
+            args:
+                batch_size: 64
+        collate_fn: collate_fn
+    val:
+        type: AudioSetStrongDataset
+        args:
+            waveform: data/train/waveform.csv
+            weak_label: data/train/label_val_weak.csv
+            weak_label_encoder: data/train/label_encoder.pkl
+            strong_label: data/train/label_val.csv
+            strong_label_encoder: data/train/label_encoder.pkl
+            time_resolution: 0.01
+        batch_sampler:
+            type: EvaluateSampler
+            args:
+                batch_size: 32
+        collate_fn: collate_fn
+    dataloader_args:
+        num_workers: 8
+
+model:
+    type: Cnn14_DecisionLevelAtt
+    args:
+        classes_num: 447
+
+resume_config:
+    checkpoint: /mnt/lustre/sjtu/home/xnx98/work/AudioCaption/sed/audioset_tagging_cnn/pretrained_weights/Cnn14_DecisionLevelAtt_mAP=0.425.pth
+    finetune: True
+
+optimizer:
+    type: Adam
+    args:
+        lr: !!float 5e-4
+        betas: !!python/tuple [0.9, 0.999]
+        weight_decay: 0.0
+        amsgrad: True
+
+lr_scheduler:
+    type: ReduceLROnPlateau
+    args:
+        patience: 3
+        factor: 0.1
+
+iterations: 600000
+
+eval_interval: 2000
+
+save_interval: 100000
+
+print_interval: 100
+
+early_stop: 10
