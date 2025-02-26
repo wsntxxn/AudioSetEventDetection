@@ -1,0 +1,17 @@
+
+data:
+    type: AudioSetStrongDataset
+    args:
+        waveform: data/eval/waveform.csv
+        weak_label: data/eval/label_framed_posneg_weak.csv
+        weak_label_encoder: data/train/label_encoder.pkl
+        strong_label: data/eval/label_framed_posneg.csv
+        strong_label_encoder: data/train/label_encoder.pkl
+        time_resolution: 0.96
+    batch_sampler:
+        type: EvaluateSampler
+        args:
+            batch_size: 32
+    collate_fn: collate_fn
+    dataloader_args:
+        num_workers: 4
